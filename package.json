@@ -1,0 +1,33 @@
+{
+  "name": "tacynt-bet",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Tacynt Bet - Plateforme d'analyse et de pronostics sportifs assistee par IA",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev": "concurrently -n web,api -c blue,yellow \"npm:dev:web\" \"npm:dev:api\"",
+    "build": "npm run build --workspaces --if-present",
+    "build:shared": "npm run build --workspace=packages/shared",
+    "build:config": "npm run build --workspace=packages/config",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\" --ignore-unknown",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\" --ignore-unknown",
+    "clean": "npm run clean --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  }
+}
