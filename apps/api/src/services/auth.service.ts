@@ -9,11 +9,12 @@ import type {
   UpdateProfileInput,
 } from '@tacynt/shared';
 
+import { corsOrigins } from '../config/env';
 import { User, type IUser } from '../models';
+import { sendPasswordResetEmail } from './email';
 import { AppError } from '../utils/errors';
 import { signAccessToken } from '../utils/jwt';
 import { comparePassword, generateResetToken, hashPassword, hashToken } from '../utils/password';
-import { logger } from '../config/logger';
 
 const RESET_TOKEN_TTL_MS = 30 * 60 * 1000;
 
@@ -97,16 +98,12 @@ export const authService = {
     await user.save();
   },
 
-  /**
-   * Retourne le token brut uniquement hors production (pas de service d'email configure
-   * dans la stack) - permet de tester le flux sans dependance externe.
-   */
-  async requestPasswordReset(input: ForgotPasswordInput): Promise<{ devToken?: string }> {
+  async requestPasswordReset(input: ForgotPasswordInput): Promise<void> {
     const user = await User.findOne({ email: input.email });
 
     // Ne jamais reveler si l'email existe ou non (evite l'enumeration de comptes).
     if (!user) {
-      return {};
+      return;
     }
 
     const { token, tokenHash } = generateResetToken();
@@ -114,9 +111,8 @@ export const authService = {
     user.passwordResetExpiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MS);
     await user.save();
 
-    logger.info(`[DEV] Lien de reinitialisation pour ${user.email} : /reset-password?token=${token}`);
-
-    return process.env.NODE_ENV === 'production' ? {} : { devToken: token };
+    const resetUrl = `${corsOrigins[0]}/reset-password?token=${token}`;
+    await sendPasswordResetEmail({ to: user.email, name: user.name, resetUrl });
   },
 
   async resetPassword(input: ResetPasswordInput): Promise<void> {

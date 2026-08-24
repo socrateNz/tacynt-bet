@@ -10,6 +10,17 @@ const envSchema = z.object({
   /** Ne jamais exposer cette valeur au frontend : usage backend uniquement. */
   GEMINI_API_KEY: z.string().min(1, 'GEMINI_API_KEY est requis'),
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
+
+  // SMTP optionnel : si absent, l'envoi d'email echoue proprement (voir services/email/mailer.ts)
+  // plutot que d'empecher le serveur de demarrer.
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().positive().default(587),
+  SMTP_SECURE: z
+    .string()
+    .default('false')
+    .transform((value) => value.toLowerCase() === 'true'),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
 });
 
 function loadEnv() {

@@ -2,10 +2,12 @@ import { env } from './config/env';
 import { logger } from './config/logger';
 import { connectDatabase } from './config/database';
 import { createApp } from './app';
+import { verifyMailer } from './services/email';
 import './models';
 
 async function bootstrap() {
   await connectDatabase();
+  await verifyMailer();
 
   const app = createApp();
 

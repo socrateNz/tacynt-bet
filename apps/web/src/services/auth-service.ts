@@ -23,9 +23,7 @@ export const authService = {
   changePassword: (input: ChangePasswordInput) =>
     apiClient.patch<{ message: string }>('/auth/change-password', input),
   forgotPassword: (input: ForgotPasswordInput) =>
-    apiClient.post<{ message: string; devToken?: string }>('/auth/forgot-password', input, {
-      withAuth: false,
-    }),
+    apiClient.post<{ message: string }>('/auth/forgot-password', input, { withAuth: false }),
   resetPassword: (input: ResetPasswordInput) =>
     apiClient.post<{ message: string }>('/auth/reset-password', input, { withAuth: false }),
 };

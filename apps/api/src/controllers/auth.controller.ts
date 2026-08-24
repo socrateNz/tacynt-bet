@@ -35,10 +35,9 @@ export const authController = {
   },
 
   async forgotPassword(req: Request, res: Response) {
-    const result = await authService.requestPasswordReset(req.body);
+    await authService.requestPasswordReset(req.body);
     sendSuccess(res, {
       message: 'Si un compte existe avec cet email, un lien de reinitialisation a ete envoye.',
-      ...result,
     });
   },
 
