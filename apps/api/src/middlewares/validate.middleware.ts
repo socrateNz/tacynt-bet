@@ -7,3 +7,14 @@ export function validateBody(schema: ZodType) {
     next();
   };
 }
+
+/**
+ * Express 5 expose req.query en lecture seule (getter derive du query parser) : on ne peut
+ * pas le reassigner. Le resultat valide/coerce est donc stocke sur req.validatedQuery.
+ */
+export function validateQuery(schema: ZodType) {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    req.validatedQuery = schema.parse(req.query);
+    next();
+  };
+}

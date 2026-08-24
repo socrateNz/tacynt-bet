@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import { Error as MongooseError } from 'mongoose';
 import { ZodError } from 'zod';
 import { ERROR_CODES } from '@tacynt/config';
 
@@ -14,6 +15,14 @@ export function errorHandlerMiddleware(err: unknown, _req: Request, res: Respons
     res.status(err.statusCode).json({
       success: false,
       error: { code: err.code, message: err.message },
+    });
+    return;
+  }
+
+  if (err instanceof MongooseError.CastError) {
+    res.status(400).json({
+      success: false,
+      error: { code: ERROR_CODES.VALIDATION_ERROR, message: 'Identifiant invalide.' },
     });
     return;
   }
