@@ -73,6 +73,8 @@ export interface MatchListItem {
   venue?: string;
   mainOdds?: MarketOdds;
   isFavorite: boolean;
+  /** Id du document Favorite (present uniquement si isFavorite est vrai), pour DELETE /api/favorites/:id. */
+  favoriteId?: string;
 }
 
 export interface MatchDetail extends MatchListItem {

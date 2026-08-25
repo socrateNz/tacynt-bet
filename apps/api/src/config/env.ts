@@ -9,6 +9,7 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('7d'),
   /** Ne jamais exposer cette valeur au frontend : usage backend uniquement. */
   GEMINI_API_KEY: z.string().min(1, 'GEMINI_API_KEY est requis'),
+  GEMINI_MODEL: z.string().default('gemini-3.6-flash'),
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
 
   // SMTP optionnel : si absent, l'envoi d'email echoue proprement (voir services/email/mailer.ts)

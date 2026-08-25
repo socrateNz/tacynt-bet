@@ -39,6 +39,10 @@ export class AppError extends Error {
     return new AppError(ERROR_CODES.AI_SERVICE_ERROR, message, 502);
   }
 
+  static aiLimitReached(message: string) {
+    return new AppError(ERROR_CODES.AI_LIMIT_REACHED, message, 429);
+  }
+
   static internal(message = 'Une erreur inattendue est survenue.') {
     return new AppError(ERROR_CODES.INTERNAL_ERROR, message, 500);
   }

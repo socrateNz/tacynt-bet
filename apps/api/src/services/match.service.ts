@@ -15,11 +15,7 @@ import {
   type ITeam,
 } from '../models';
 import { AppError } from '../utils/errors';
-
-/** Mongoose infere `T | null` pour les champs optionnels ; nos DTOs partages veulent `T | undefined`. */
-function orUndefined<T>(value: T | null | undefined): T | undefined {
-  return value ?? undefined;
-}
+import { orUndefined } from '../utils/mongoose';
 
 /** Forme reelle d'un document Match une fois les refs peuplees (sportId, competitionId, ...). */
 type PopulatedMatch = Omit<
@@ -45,7 +41,11 @@ function toMarketOdds(odds: HydratedDocument<IOdds>[]): MarketOdds[] {
   return Array.from(byMarket.entries()).map(([market, selections]) => ({ market, selections }));
 }
 
-function toMatchListItem(match: PopulatedMatch, odds: HydratedDocument<IOdds>[], isFavorite: boolean): MatchListItem {
+function toMatchListItem(
+  match: PopulatedMatch,
+  odds: HydratedDocument<IOdds>[],
+  favoriteId: string | undefined,
+): MatchListItem {
   const marketOdds = toMarketOdds(odds);
 
   return {
@@ -76,16 +76,21 @@ function toMatchListItem(match: PopulatedMatch, odds: HydratedDocument<IOdds>[],
     status: match.status as MatchStatus,
     venue: orUndefined(match.venue),
     mainOdds: marketOdds.find((entry) => entry.market === 'MATCH_WINNER'),
-    isFavorite,
+    isFavorite: Boolean(favoriteId),
+    favoriteId,
   };
 }
 
-function toMatchDetail(match: PopulatedMatch, odds: HydratedDocument<IOdds>[], isFavorite: boolean): MatchDetail {
+function toMatchDetail(
+  match: PopulatedMatch,
+  odds: HydratedDocument<IOdds>[],
+  favoriteId: string | undefined,
+): MatchDetail {
   const home = match.homeStats;
   const away = match.awayStats;
 
   return {
-    ...toMatchListItem(match, odds, isFavorite),
+    ...toMatchListItem(match, odds, favoriteId),
     homeStats: {
       played: home?.played ?? 0,
       wins: home?.wins ?? 0,
@@ -189,13 +194,13 @@ export const matchService = {
         : Promise.resolve([]),
     ]);
 
-    const favoriteSet = new Set(favorites.map((favorite) => favorite.refId.toString()));
+    const favoriteByMatchId = new Map(favorites.map((favorite) => [favorite.refId.toString(), favorite.id]));
 
     const items = matches.map((match) =>
       toMatchListItem(
         match,
         odds.filter((odd) => odd.matchId.toString() === match.id),
-        favoriteSet.has(match.id),
+        favoriteByMatchId.get(match.id),
       ),
     );
 
@@ -218,6 +223,6 @@ export const matchService = {
       userId ? Favorite.findOne({ userId, type: 'MATCH', refId: match._id }) : Promise.resolve(null),
     ]);
 
-    return toMatchDetail(match, odds, Boolean(favorite));
+    return toMatchDetail(match, odds, favorite?.id);
   },
 };

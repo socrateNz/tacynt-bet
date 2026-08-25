@@ -28,3 +28,12 @@ export const authRateLimiter = rateLimit({
   legacyHeaders: false,
   handler: rateLimitedHandler,
 });
+
+/** Limite les appels IA par IP, en complement de la limite quotidienne par utilisateur/plan. */
+export const aiRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: rateLimitedHandler,
+});

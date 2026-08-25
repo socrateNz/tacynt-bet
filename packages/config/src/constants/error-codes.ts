@@ -9,6 +9,8 @@ export const ERROR_CODES = {
   AI_SERVICE_ERROR: 'AI_SERVICE_ERROR',
   /** Utilise quand Gemini n'a pas assez de donnees pour repondre sur un point precis. */
   DATA_UNAVAILABLE: 'DATA_UNAVAILABLE',
+  /** Limite quotidienne d'analyses IA atteinte pour le plan de l'utilisateur. */
+  AI_LIMIT_REACHED: 'AI_LIMIT_REACHED',
 } as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
