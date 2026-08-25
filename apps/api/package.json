@@ -8,6 +8,7 @@
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
     "seed": "tsx src/jobs/seed-matches.job.ts",
+    "settle": "tsx src/jobs/settle-predictions.job.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit"

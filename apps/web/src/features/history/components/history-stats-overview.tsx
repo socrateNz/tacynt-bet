@@ -1,13 +1,13 @@
 'use client';
 
-import { CheckCircle2, Sparkles, Ticket, TrendingUp } from 'lucide-react';
+import { CheckCircle2, ListChecks, TrendingUp, XCircle } from 'lucide-react';
 
 import { StatCard } from '@/components/stat-card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useDashboardStats } from '@/hooks/use-dashboard';
+import { useHistoryStats } from '@/hooks/use-history';
 
-export function StatsOverview() {
-  const { data, isLoading } = useDashboardStats();
+export function HistoryStatsOverview() {
+  const { data, isLoading } = useHistoryStats();
 
   if (isLoading) {
     return (
@@ -21,13 +21,13 @@ export function StatsOverview() {
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <StatCard label="Analyses IA" value={data?.analysesCount ?? 0} icon={Sparkles} />
-      <StatCard label="Coupons generes" value={data?.couponsGeneratedCount ?? 0} icon={Ticket} />
-      <StatCard label="Coupons sauvegardes" value={data?.couponsSavedCount ?? 0} icon={CheckCircle2} />
+      <StatCard label="Pronostics au total" value={data?.totalPredictions ?? 0} icon={ListChecks} />
+      <StatCard label="Gagnants" value={data?.wonPredictions ?? 0} icon={CheckCircle2} />
+      <StatCard label="Perdants" value={data?.lostPredictions ?? 0} icon={XCircle} />
       <StatCard
         label={
-          data?.settledPredictionsCount
-            ? `Taux de reussite (${data.settledPredictionsCount})`
+          data?.settledPredictions
+            ? `Taux de reussite (${data.settledPredictions} regles)`
             : 'Taux de reussite (bientot disponible)'
         }
         value={data?.successRate !== null && data?.successRate !== undefined ? `${data.successRate}%` : '—'}

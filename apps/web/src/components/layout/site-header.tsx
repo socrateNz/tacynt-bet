@@ -31,6 +31,11 @@ export function SiteHeader() {
             <Link href={ROUTES.coupons} className="text-muted-foreground hover:text-foreground">
               Coupons
             </Link>
+            {user ? (
+              <Link href={ROUTES.history} className="text-muted-foreground hover:text-foreground">
+                Historique
+              </Link>
+            ) : null}
           </nav>
         </div>
         <div className="flex items-center gap-3">
