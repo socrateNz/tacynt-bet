@@ -15,6 +15,7 @@ import { AIAnalysis, Coupon, Match, PredictionResult, UsageLog, User, type IUser
 import { predictionResultService } from './prediction-result.service';
 import { syncMatchesFromProvider } from './sync.service';
 import { AppError } from '../utils/errors';
+import { escapeRegex } from '../utils/regex';
 
 const USAGE_WINDOW_DAYS = 30;
 
@@ -71,7 +72,7 @@ export const adminService = {
 
   async listUsers(search: string | undefined, page: number, limit: number): Promise<PaginatedResult<AdminUserSummary>> {
     const query = search
-      ? { $or: [{ email: new RegExp(search, 'i') }, { name: new RegExp(search, 'i') }] }
+      ? { $or: [{ email: new RegExp(escapeRegex(search), 'i') }, { name: new RegExp(escapeRegex(search), 'i') }] }
       : {};
 
     const [users, total] = await Promise.all([

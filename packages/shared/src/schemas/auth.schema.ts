@@ -3,13 +3,13 @@ import { z } from 'zod';
 export const registerSchema = z.object({
   name: z.string().trim().min(2, 'Le nom doit contenir au moins 2 caracteres').max(100),
   email: z.email('Adresse email invalide'),
-  password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caracteres'),
+  password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caracteres').max(128),
 });
 export type RegisterInput = z.infer<typeof registerSchema>;
 
 export const loginSchema = z.object({
   email: z.email('Adresse email invalide'),
-  password: z.string().min(1, 'Mot de passe requis'),
+  password: z.string().min(1, 'Mot de passe requis').max(128),
 });
 export type LoginInput = z.infer<typeof loginSchema>;
 
@@ -20,13 +20,13 @@ export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 
 export const resetPasswordSchema = z.object({
   token: z.string().min(1, 'Token requis'),
-  password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caracteres'),
+  password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caracteres').max(128),
 });
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 
 export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, 'Mot de passe actuel requis'),
-  newPassword: z.string().min(8, 'Le nouveau mot de passe doit contenir au moins 8 caracteres'),
+  currentPassword: z.string().min(1, 'Mot de passe actuel requis').max(128),
+  newPassword: z.string().min(8, 'Le nouveau mot de passe doit contenir au moins 8 caracteres').max(128),
 });
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 

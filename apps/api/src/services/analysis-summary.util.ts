@@ -21,6 +21,13 @@ export const ANALYSIS_MATCH_POPULATE = {
   populate: [{ path: 'competitionId' }, { path: 'homeTeamId' }, { path: 'awayTeamId' }],
 };
 
+/**
+ * Champs reellement utilises par mapAnalysisToSummary - exclut notamment rawResponse (le JSON
+ * brut de Gemini, potentiellement volumineux) que les vues liste (Dashboard/Historique) n'affichent
+ * jamais.
+ */
+export const ANALYSIS_SUMMARY_PROJECTION = 'matchId summary confidence risk createdAt';
+
 export function mapAnalysisToSummary(analysis: PopulatedAnalysis): DashboardAnalysisSummary {
   return {
     id: analysis.id,

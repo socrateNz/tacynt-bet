@@ -20,6 +20,8 @@ const aiAnalysisSchema = new Schema(
 );
 
 aiAnalysisSchema.index({ matchId: 1, promptVersion: 1, createdAt: -1 });
+/** Dashboard/Historique interrogent systematiquement par requestedBy, trie par date. */
+aiAnalysisSchema.index({ requestedBy: 1, createdAt: -1 });
 
 export type IAIAnalysis = InferSchemaType<typeof aiAnalysisSchema>;
 

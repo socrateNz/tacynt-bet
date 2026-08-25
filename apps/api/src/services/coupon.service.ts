@@ -38,14 +38,12 @@ const SELECTION_MATCH_POPULATE = {
   populate: [{ path: 'competitionId' }, { path: 'homeTeamId' }, { path: 'awayTeamId' }],
 };
 
-async function toDTO(coupon: HydratedDocument<ICoupon>, userId: string): Promise<CouponDTO> {
-  const [selections, savedEntry] = await Promise.all([
-    CouponSelection.find({ couponId: coupon._id }).populate(
-      SELECTION_MATCH_POPULATE,
-    ) as unknown as Promise<PopulatedSelection[]>,
-    SavedCoupon.findOne({ userId, couponId: coupon._id }),
-  ]);
-
+/** Assemble un CouponDTO a partir de donnees deja chargees - ne fait jamais de requete elle-meme. */
+function mapCouponToDTO(
+  coupon: HydratedDocument<ICoupon>,
+  selections: PopulatedSelection[],
+  savedCouponId: string | undefined,
+): CouponDTO {
   return {
     id: coupon.id,
     targetOdds: coupon.targetOdds,
@@ -89,10 +87,51 @@ async function toDTO(coupon: HydratedDocument<ICoupon>, userId: string): Promise
       confidence: selection.confidence,
       reason: selection.reason,
     })),
-    isSaved: Boolean(savedEntry),
-    savedCouponId: savedEntry?.id,
+    isSaved: Boolean(savedCouponId),
+    savedCouponId,
     createdAt: coupon.createdAt.toISOString(),
   };
+}
+
+/** Cas d'un seul coupon (generation, detail, sauvegarde) - le cout de 2 requetes est negligeable ici. */
+async function toDTO(coupon: HydratedDocument<ICoupon>, userId: string): Promise<CouponDTO> {
+  const [selections, savedEntry] = await Promise.all([
+    CouponSelection.find({ couponId: coupon._id }).populate(
+      SELECTION_MATCH_POPULATE,
+    ) as unknown as Promise<PopulatedSelection[]>,
+    SavedCoupon.findOne({ userId, couponId: coupon._id }),
+  ]);
+
+  return mapCouponToDTO(coupon, selections, savedEntry?.id);
+}
+
+/**
+ * Cas d'une liste paginee de coupons : au lieu de 2 requetes par coupon (N+1), on charge en une
+ * seule fois toutes les selections et tous les statuts "sauvegarde" des coupons de la page.
+ */
+async function toDTOBatch(coupons: HydratedDocument<ICoupon>[], userId: string): Promise<CouponDTO[]> {
+  const couponIds = coupons.map((coupon) => coupon._id);
+
+  const [selections, savedEntries] = await Promise.all([
+    CouponSelection.find({ couponId: { $in: couponIds } }).populate(
+      SELECTION_MATCH_POPULATE,
+    ) as unknown as Promise<PopulatedSelection[]>,
+    SavedCoupon.find({ userId, couponId: { $in: couponIds } }),
+  ]);
+
+  const selectionsByCouponId = new Map<string, PopulatedSelection[]>();
+  for (const selection of selections) {
+    const key = selection.couponId.toString();
+    const list = selectionsByCouponId.get(key) ?? [];
+    list.push(selection);
+    selectionsByCouponId.set(key, list);
+  }
+
+  const savedCouponIdByCouponId = new Map(savedEntries.map((entry) => [entry.couponId.toString(), entry.id]));
+
+  return coupons.map((coupon) =>
+    mapCouponToDTO(coupon, selectionsByCouponId.get(coupon.id) ?? [], savedCouponIdByCouponId.get(coupon.id)),
+  );
 }
 
 export const couponService = {
@@ -167,7 +206,7 @@ export const couponService = {
     ]);
 
     return {
-      items: await Promise.all(coupons.map((coupon) => toDTO(coupon, userId))),
+      items: await toDTOBatch(coupons, userId),
       total,
       page: filters.page,
       limit: filters.limit,

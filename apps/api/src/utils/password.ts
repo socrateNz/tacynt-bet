@@ -11,6 +11,17 @@ export function comparePassword(password: string, hash: string): Promise<boolean
   return bcrypt.compare(password, hash);
 }
 
+/**
+ * Hash bcrypt factice (meme cout que SALT_ROUNDS), genere une fois au demarrage, pour occuper
+ * le meme temps de calcul qu'une comparaison reelle quand l'utilisateur n'existe pas - evite
+ * l'enumeration de comptes par mesure du temps de reponse du login.
+ */
+const DUMMY_HASH = bcrypt.hashSync('dummy-password-for-timing-normalization', SALT_ROUNDS);
+
+export function compareAgainstDummyHash(password: string): Promise<boolean> {
+  return bcrypt.compare(password, DUMMY_HASH);
+}
+
 /** Genere un token de reinitialisation en clair (envoye a l'utilisateur) + son empreinte (stockee en base). */
 export function generateResetToken(): { token: string; tokenHash: string } {
   const token = randomBytes(32).toString('hex');

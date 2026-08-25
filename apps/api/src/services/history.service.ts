@@ -2,7 +2,12 @@ import type { HydratedDocument } from 'mongoose';
 import type { DashboardAnalysisSummary, HistoryStats, PaginatedResult, PerformanceBreakdown } from '@tacynt/shared';
 
 import { AIAnalysis, Prediction, PredictionResult, type IMatch, type IPrediction, type ISport } from '../models';
-import { ANALYSIS_MATCH_POPULATE, mapAnalysisToSummary, type PopulatedAnalysis } from './analysis-summary.util';
+import {
+  ANALYSIS_MATCH_POPULATE,
+  ANALYSIS_SUMMARY_PROJECTION,
+  mapAnalysisToSummary,
+  type PopulatedAnalysis,
+} from './analysis-summary.util';
 import { predictionResultService } from './prediction-result.service';
 
 type PopulatedPredictionWithSport = Omit<HydratedDocument<IPrediction>, 'matchId'> & {
@@ -48,6 +53,7 @@ export const historyService = {
 
     const [analyses, total] = await Promise.all([
       AIAnalysis.find(query)
+        .select(ANALYSIS_SUMMARY_PROJECTION)
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)

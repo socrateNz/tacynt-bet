@@ -14,7 +14,7 @@ import { User, type IUser } from '../models';
 import { sendPasswordResetEmail } from './email';
 import { AppError } from '../utils/errors';
 import { signAccessToken } from '../utils/jwt';
-import { comparePassword, generateResetToken, hashPassword, hashToken } from '../utils/password';
+import { compareAgainstDummyHash, comparePassword, generateResetToken, hashPassword, hashToken } from '../utils/password';
 
 const RESET_TOKEN_TTL_MS = 30 * 60 * 1000;
 
@@ -51,12 +51,14 @@ export const authService = {
 
   async login(input: LoginInput): Promise<AuthSession> {
     const user = await User.findOne({ email: input.email }).select('+passwordHash');
-    if (!user) {
-      throw AppError.unauthorized('Email ou mot de passe incorrect.');
-    }
 
-    const isValid = await comparePassword(input.password, user.passwordHash);
-    if (!isValid) {
+    // Compare systematiquement contre un hash (reel ou factice) pour que le temps de reponse
+    // ne revele pas si l'email existe en base (anti-enumeration de comptes).
+    const isValid = user
+      ? await comparePassword(input.password, user.passwordHash)
+      : await compareAgainstDummyHash(input.password);
+
+    if (!user || !isValid) {
       throw AppError.unauthorized('Email ou mot de passe incorrect.');
     }
 

@@ -55,43 +55,62 @@ export const predictionResultService = {
   /**
    * Regle les pronostics des matchs termines : cree ou met a jour le PredictionResult
    * correspondant. Idempotent - ne retouche jamais un resultat deja regle (WON/LOST/VOID).
+   *
+   * Charge tout en un nombre fixe de requetes (au lieu d'une requete par match puis par
+   * pronostic) et applique les mises a jour via un seul bulkWrite - appelee a chaque
+   * chargement du Dashboard/Historique, elle doit rester O(1) requetes quel que soit le
+   * nombre de matchs termines.
    */
   async settlePendingResults(): Promise<{ settled: number }> {
     const finishedMatches = await Match.find({ status: 'FINISHED' });
-    let settled = 0;
-
+    const scoreByMatchId = new Map<string, FinalScore>();
     for (const match of finishedMatches) {
       const home = match.finalScore?.home;
       const away = match.finalScore?.away;
-      if (home === null || home === undefined || away === null || away === undefined) {
-        continue;
-      }
-
-      const predictions = await Prediction.find({ matchId: match._id });
-      if (predictions.length === 0) continue;
-
-      const existingResults = await PredictionResult.find({
-        predictionId: { $in: predictions.map((prediction) => prediction._id) },
-      });
-      const existingByPredictionId = new Map(
-        existingResults.map((result) => [result.predictionId.toString(), result]),
-      );
-
-      for (const prediction of predictions) {
-        const existing = existingByPredictionId.get(prediction.id);
-        if (existing && existing.outcome !== 'PENDING') continue;
-
-        const outcome = evaluateSelection(prediction.market, prediction.selection, { home, away });
-
-        await PredictionResult.findOneAndUpdate(
-          { predictionId: prediction._id },
-          { predictionId: prediction._id, matchId: match._id, outcome, settledAt: new Date() },
-          { upsert: true },
-        );
-        settled += 1;
-      }
+      if (home === null || home === undefined || away === null || away === undefined) continue;
+      scoreByMatchId.set(match.id, { home, away });
     }
 
-    return { settled };
+    if (scoreByMatchId.size === 0) {
+      return { settled: 0 };
+    }
+
+    const matchIds = [...scoreByMatchId.keys()];
+    const predictions = await Prediction.find({ matchId: { $in: matchIds } });
+    if (predictions.length === 0) {
+      return { settled: 0 };
+    }
+
+    const existingResults = await PredictionResult.find({
+      predictionId: { $in: predictions.map((prediction) => prediction._id) },
+    });
+    const existingByPredictionId = new Map(
+      existingResults.map((result) => [result.predictionId.toString(), result]),
+    );
+
+    const operations = [];
+    for (const prediction of predictions) {
+      const existing = existingByPredictionId.get(prediction.id);
+      if (existing && existing.outcome !== 'PENDING') continue;
+
+      const score = scoreByMatchId.get(prediction.matchId.toString());
+      if (!score) continue;
+
+      const outcome = evaluateSelection(prediction.market, prediction.selection, score);
+
+      operations.push({
+        updateOne: {
+          filter: { predictionId: prediction._id },
+          update: { predictionId: prediction._id, matchId: prediction.matchId, outcome, settledAt: new Date() },
+          upsert: true,
+        },
+      });
+    }
+
+    if (operations.length > 0) {
+      await PredictionResult.bulkWrite(operations);
+    }
+
+    return { settled: operations.length };
   },
 };

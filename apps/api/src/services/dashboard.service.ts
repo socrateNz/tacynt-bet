@@ -1,7 +1,12 @@
 import type { DashboardAnalysisSummary, DashboardStats } from '@tacynt/shared';
 
 import { AIAnalysis, Coupon, Prediction, PredictionResult, SavedCoupon } from '../models';
-import { ANALYSIS_MATCH_POPULATE, mapAnalysisToSummary, type PopulatedAnalysis } from './analysis-summary.util';
+import {
+  ANALYSIS_MATCH_POPULATE,
+  ANALYSIS_SUMMARY_PROJECTION,
+  mapAnalysisToSummary,
+  type PopulatedAnalysis,
+} from './analysis-summary.util';
 
 export const dashboardService = {
   async getStats(userId: string): Promise<DashboardStats> {
@@ -37,6 +42,7 @@ export const dashboardService = {
 
   async getRecentAnalyses(userId: string, limit = 5): Promise<DashboardAnalysisSummary[]> {
     const analyses = (await AIAnalysis.find({ requestedBy: userId })
+      .select(ANALYSIS_SUMMARY_PROJECTION)
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate(ANALYSIS_MATCH_POPULATE)) as unknown as PopulatedAnalysis[];

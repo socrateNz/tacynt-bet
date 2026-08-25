@@ -23,6 +23,7 @@ authRouter.patch('/profile', requireAuth, validateBody(updateProfileSchema), aut
 authRouter.patch(
   '/change-password',
   requireAuth,
+  authRateLimiter,
   validateBody(changePasswordSchema),
   authController.changePassword,
 );
