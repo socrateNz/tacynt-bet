@@ -10,6 +10,8 @@ const couponSelectionSchema = new Schema(
     selection: { type: String, required: true, trim: true },
     odds: { type: Number, required: true, min: 1 },
     confidence: { type: Number, required: true, min: 0, max: 100 },
+    /** Reprise de la justification du Prediction d'origine, pour l'affichage cote client. */
+    reason: { type: String, required: true },
   },
   { timestamps: true },
 );

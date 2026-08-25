@@ -7,6 +7,7 @@ export const predictionQuerySchema = z.object({
   risk: z.enum(RISK_LEVELS).optional(),
   minConfidence: z.coerce.number().min(0).max(100).optional(),
   upcomingOnly: z.coerce.boolean().optional(),
+  sort: z.enum(['recent', 'confidence']).default('recent'),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(50).default(20),
 });

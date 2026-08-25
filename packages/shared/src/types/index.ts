@@ -6,3 +6,4 @@ export * from './reference-data';
 export * from './ai-analysis';
 export * from './prediction';
 export * from './coupon';
+export * from './dashboard';

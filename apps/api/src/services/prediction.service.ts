@@ -90,9 +90,12 @@ export const predictionService = {
       query.confidence = { $gte: filters.minConfidence };
     }
 
+    const sortOrder: Record<string, 1 | -1> =
+      filters.sort === 'confidence' ? { confidence: -1 } : { createdAt: -1 };
+
     const [predictions, total] = await Promise.all([
       Prediction.find(query)
-        .sort({ createdAt: -1 })
+        .sort(sortOrder)
         .skip((filters.page - 1) * filters.limit)
         .limit(filters.limit)
         .populate(MATCH_POPULATE) as unknown as Promise<PopulatedPrediction[]>,

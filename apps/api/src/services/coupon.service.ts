@@ -87,6 +87,7 @@ async function toDTO(coupon: HydratedDocument<ICoupon>, userId: string): Promise
       selection: selection.selection,
       odds: selection.odds,
       confidence: selection.confidence,
+      reason: selection.reason,
     })),
     isSaved: Boolean(savedEntry),
     savedCouponId: savedEntry?.id,
@@ -134,6 +135,7 @@ export const couponService = {
             selection: selection.selection,
             odds: selection.odds,
             confidence: selection.confidence,
+            reason: selection.reason,
           })),
         );
 

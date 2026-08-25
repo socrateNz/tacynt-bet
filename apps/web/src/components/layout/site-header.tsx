@@ -17,11 +17,19 @@ export function SiteHeader() {
             Tacynt Bet
           </Link>
           <nav className="hidden items-center gap-6 text-sm sm:flex">
+            {user ? (
+              <Link href={ROUTES.dashboard} className="text-muted-foreground hover:text-foreground">
+                Tableau de bord
+              </Link>
+            ) : null}
             <Link href={ROUTES.matches} className="text-muted-foreground hover:text-foreground">
               Matchs
             </Link>
             <Link href={ROUTES.predictions} className="text-muted-foreground hover:text-foreground">
               Pronostics
+            </Link>
+            <Link href={ROUTES.coupons} className="text-muted-foreground hover:text-foreground">
+              Coupons
             </Link>
           </nav>
         </div>

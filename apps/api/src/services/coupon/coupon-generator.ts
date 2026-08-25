@@ -9,6 +9,7 @@ export interface GeneratorSelection {
   odds: number;
   confidence: number;
   risk: RiskLevel;
+  reason: string;
 }
 
 export interface GeneratedCoupon {
@@ -83,6 +84,7 @@ export function filterPoolForRiskProfile(
       odds: prediction.odds,
       confidence: prediction.confidence,
       risk: prediction.risk,
+      reason: prediction.reason,
     }));
 }
 

@@ -14,6 +14,7 @@ export interface CouponSelectionItem {
   selection: string;
   odds: number;
   confidence: number;
+  reason: string;
 }
 
 export interface Coupon {

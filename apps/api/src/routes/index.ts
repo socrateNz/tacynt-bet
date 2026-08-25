@@ -8,6 +8,7 @@ import { competitionRouter } from './competition.route';
 import { aiRouter } from './ai.route';
 import { predictionRouter } from './prediction.route';
 import { couponRouter } from './coupon.route';
+import { dashboardRouter } from './dashboard.route';
 
 export const apiRouter = Router();
 
@@ -19,3 +20,4 @@ apiRouter.use('/competitions', competitionRouter);
 apiRouter.use('/ai', aiRouter);
 apiRouter.use('/predictions', predictionRouter);
 apiRouter.use('/coupons', couponRouter);
+apiRouter.use('/dashboard', dashboardRouter);
