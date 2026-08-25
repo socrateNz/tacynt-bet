@@ -10,6 +10,7 @@ import { predictionRouter } from './prediction.route';
 import { couponRouter } from './coupon.route';
 import { dashboardRouter } from './dashboard.route';
 import { historyRouter } from './history.route';
+import { adminRouter } from './admin.route';
 
 export const apiRouter = Router();
 
@@ -23,3 +24,4 @@ apiRouter.use('/predictions', predictionRouter);
 apiRouter.use('/coupons', couponRouter);
 apiRouter.use('/dashboard', dashboardRouter);
 apiRouter.use('/history', historyRouter);
+apiRouter.use('/admin', adminRouter);

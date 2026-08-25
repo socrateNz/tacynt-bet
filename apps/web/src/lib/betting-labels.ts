@@ -27,3 +27,20 @@ export const RISK_LABELS: Record<string, string> = {
   HIGH: 'Eleve',
   VERY_HIGH: 'Tres eleve',
 };
+
+export const ROLE_LABELS: Record<string, string> = {
+  USER: 'Utilisateur',
+  ADMIN: 'Administrateur',
+  SUPER_ADMIN: 'Super administrateur',
+};
+
+export const PLAN_LABELS: Record<string, string> = {
+  FREE: 'Gratuit',
+  PREMIUM: 'Premium',
+};
+
+export const AI_OPERATION_LABELS: Record<string, string> = {
+  MATCH_ANALYSIS: 'Analyse de match',
+  COUPON_GENERATION: 'Generation de coupons',
+  PREDICTION_EXPLANATION: 'Explication de pronostic',
+};

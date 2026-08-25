@@ -36,6 +36,11 @@ export function SiteHeader() {
                 Historique
               </Link>
             ) : null}
+            {user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN' ? (
+              <Link href={ROUTES.admin} className="text-muted-foreground hover:text-foreground">
+                Administration
+              </Link>
+            ) : null}
           </nav>
         </div>
         <div className="flex items-center gap-3">

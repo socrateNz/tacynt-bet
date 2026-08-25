@@ -8,3 +8,4 @@ export * from './prediction';
 export * from './coupon';
 export * from './dashboard';
 export * from './history';
+export * from './admin';
